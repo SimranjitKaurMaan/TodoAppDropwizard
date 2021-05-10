@@ -1,0 +1,57 @@
+package resources
+
+import entities.Todo
+import entities.TodoDraft
+import org.eclipse.jetty.http.HttpStatus
+import repository.InMemoryTodoRepository
+import repository.TodoRepository
+import javax.ws.rs.*
+import javax.ws.rs.core.MediaType
+import javax.ws.rs.core.Response
+
+@Path("/api/v1")
+@Produces(MediaType.APPLICATION_JSON)
+class TodoController
+{
+    private val repository: TodoRepository = InMemoryTodoRepository()
+
+    @GET
+    fun get(): String {
+        return "Hello TodoList"
+    }
+
+    @GET
+    @Path("/todos")
+    fun getAllTodos(): List<Todo> {
+       return repository.getAllTodos()
+    }
+
+    @GET
+    @Path("/todos/{id}")
+    fun getTodo(@PathParam("id") id: Int): Todo? {
+        return repository.getTodo(id)
+            ?: throw WebApplicationException("found no todo for id $id", HttpStatus.NOT_FOUND_404)
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/todos")
+    fun postTodo(todoDraft: TodoDraft): Todo {
+        return repository.addTodo(todoDraft)
+    }
+
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/todos/{id}")
+    fun putTodo(@PathParam("id") id: Int,todoDraft: TodoDraft): Response.ResponseBuilder? {
+        val updated = repository.updateTodo(id,todoDraft)
+        if(updated)
+        {
+            return Response.ok()
+        }else
+        {
+            throw WebApplicationException("found no todo for id $id", HttpStatus.NOT_FOUND_404)
+        }
+    }
+
+}
