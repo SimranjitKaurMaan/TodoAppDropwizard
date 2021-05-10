@@ -1,5 +1,6 @@
 package resources
 
+import entities.Representation
 import entities.Todo
 import entities.TodoDraft
 import org.eclipse.jetty.http.HttpStatus
@@ -7,7 +8,6 @@ import repository.InMemoryTodoRepository
 import repository.TodoRepository
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
-import javax.ws.rs.core.Response
 
 @Path("/api/v1")
 @Produces(MediaType.APPLICATION_JSON)
@@ -43,11 +43,11 @@ class TodoController
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/todos/{id}")
-    fun putTodo(@PathParam("id") id: Int,todoDraft: TodoDraft): Response.ResponseBuilder? {
+    fun putTodo(@PathParam("id") id: Int,todoDraft: TodoDraft): Representation<Boolean> {
         val updated = repository.updateTodo(id,todoDraft)
         if(updated)
         {
-            return Response.ok()
+            return Representation<Boolean>(HttpStatus.OK_200,updated)
         }else
         {
             throw WebApplicationException("found no todo for id $id", HttpStatus.NOT_FOUND_404)
